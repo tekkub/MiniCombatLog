@@ -1,0 +1,6 @@
+## Interface: 30100
+## Title: Mini Combat Log
+## Notes: Combat Log actions in small frame
+## Version: 1.0
+
+MiniCombatLog.lua
