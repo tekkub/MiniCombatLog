@@ -3,7 +3,7 @@ testframe1:SetBackdropBorderColor(0,0,0,0)
 testframe1:SetBackdropColor(0,0,0,0.7)
 testframe1:SetWidth(60)
 testframe1:SetHeight(400)
-testframe1:SetPoint("RIGHT",UIParent,"RIGHT",-100,0)
+testframe1:SetPoint("RIGHT",UIParent,"RIGHT",-1,-45)
 testframe1:SetMaxLines(250)
 testframe1:SetFontObject(ChatFontSmall)
 testframe1:SetJustifyH("LEFT")
@@ -70,7 +70,8 @@ end
 
 local function Mprint(chat1,chat2,chat3,color,text,critical)
     if critical then text = "*"..text.."*" end
-    chat1:AddMessage(color..text.."|r")
+    if color then text = color..text end
+	chat1:AddMessage(text.."|r")
     chat2:AddMessage(" ")
     chat3:AddMessage(" ")
 end
@@ -134,10 +135,11 @@ f:SetScript("OnEvent", function(self,event,...)
 			if select(13,...) < select(12,...) then
 				Mprint(testframe2,testframe1,testframe3,lightgreen,"["..select(12,...).."]",select(14,...))
 			end
-
+		elseif minievent == "UNIT_DIED" and guidtarget == player then
+			Mprint(testframe2,testframe1,testframe3,red,skull..skull..skull)
 		else return end
 
-    elseif event == "PLAYER_REGEN_ENABLED" then
+    elseif event == "PLAYER_REGEN_ENABLED" and not UnitIsDead("player") then
 		Mprint(testframe2,testframe1,testframe3,green,"+++")
     elseif event == "PLAYER_REGEN_DISABLED" then
         Mprint(testframe2,testframe1,testframe3,red,"---")
