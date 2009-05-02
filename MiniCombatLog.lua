@@ -93,25 +93,25 @@ f:SetScript("OnEvent",function()
 			local _,minievent,guidsource,source,_,guidtarget,target,_,_,_,color = ...
 
 			-- Player
-			if minievent == "SWING_DAMAGE" and guidsource == player then 
+			if minievent == "SWING_DAMAGE" and guidsource == player then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(9,...),select(15,...))
-			elseif minievent == "SWING_DAMAGE" and guidtarget == player then 
+			elseif minievent == "SWING_DAMAGE" and guidtarget == player then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(9,...),select(15,...))
-			elseif minievent == "SPELL_DAMAGE" and guidsource == player then 
+			elseif minievent == "SPELL_DAMAGE" and guidsource == player then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_DAMAGE" and guidtarget == player then 
+			elseif minievent == "SPELL_DAMAGE" and guidtarget == player then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == player then 
+			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == player then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == player then 
+			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == player then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == player then 
+			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == player then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(10,...),nil)
-			elseif minievent == "SPELL_HEAL" and guidtarget == player then 
+			elseif minievent == "SPELL_HEAL" and guidtarget == player then
 				if select(13,...) < select(12,...) then
 					Mprint(testframe2,testframe1,testframe3,green,select(12,...),select(14,...))
 				end
-			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == player then 
+			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == player then
 				if select(13,...) < select(12,...) then
 					Mprint(testframe2,testframe1,testframe3,lightgreen,select(12,...),select(14,...))
 				end
@@ -119,25 +119,25 @@ f:SetScript("OnEvent",function()
 				Mprint(testframe2,testframe1,testframe3,red,skull..skull..skull)
 				
 			-- Pet
-			elseif minievent == "SWING_DAMAGE" and guidsource == pet then 
+			elseif minievent == "SWING_DAMAGE" and guidsource == pet then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(9,...).."]",select(15,...))
-			elseif minievent == "SWING_DAMAGE" and guidtarget == pet then 
+			elseif minievent == "SWING_DAMAGE" and guidtarget == pet then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(9,...).."]",select(15,...))
-			elseif minievent == "SPELL_DAMAGE" and guidsource == pet then 
+			elseif minievent == "SPELL_DAMAGE" and guidsource == pet then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_DAMAGE" and guidtarget == pet then 
+			elseif minievent == "SPELL_DAMAGE" and guidtarget == pet then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == pet then 
+			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == pet then
 				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == pet then 
+			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == pet then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == pet then 
+			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == pet then
 				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(10,...).."]",nil)
-			elseif minievent == "SPELL_HEAL" and guidtarget == pet then 
+			elseif minievent == "SPELL_HEAL" and guidtarget == pet then
 				if select(13,...) < select(12,...) then
 					Mprint(testframe2,testframe1,testframe3,green,"["..select(12,...).."]",select(14,...))
 				end
-			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == pet then 
+			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == pet then
 				if select(13,...) < select(12,...) then
 					Mprint(testframe2,testframe1,testframe3,lightgreen,"["..select(12,...).."]",select(14,...))
 				end
