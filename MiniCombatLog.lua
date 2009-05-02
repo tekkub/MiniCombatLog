@@ -7,11 +7,7 @@ f:SetScript("OnEvent",function()
 	testframe1:SetBackdropColor(0,0,0,0.7)
 	testframe1:SetWidth(60)
 	testframe1:SetHeight(400)
-	if not MultiBarRight:IsVisible() then
-		testframe1:SetPoint("RIGHT",UIParent,"RIGHT",-1,-45)
-	else
-		testframe1:SetPoint("RIGHT",UIParent,"RIGHT",-42,-45)
-	end
+	testframe1:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, -30)
 	testframe1:SetMaxLines(250)
 	testframe1:SetFontObject(ChatFontSmall)
 	testframe1:SetJustifyH("LEFT")
