@@ -1,154 +1,94 @@
-﻿local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:SetScript("OnEvent",function()
+﻿
+local mcl, frames = MCLFRAME, MCLFRAME.frames
+MCLFRAME = nil
 
-	local testframe1 = CreateFrame("ScrollingMessageFrame", nil, UIParent)
-	testframe1:SetBackdropBorderColor(0,0,0,0)
-	testframe1:SetBackdropColor(0,0,0,0.7)
-	testframe1:SetWidth(60)
-	testframe1:SetHeight(400)
-	testframe1:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, -30)
-	testframe1:SetMaxLines(250)
-	testframe1:SetFontObject(ChatFontSmall)
-	testframe1:SetJustifyH("LEFT")
-	testframe1:SetFading(false)
 
-	local testframe2 = CreateFrame("ScrollingMessageFrame", nil, UIParent)
-	testframe2:SetAllPoints(testframe1)
-	testframe2:SetMaxLines(250)
-	testframe2:SetFontObject(ChatFontSmall)
-	testframe2:SetJustifyH("CENTER")
-	testframe2:SetFading(false)
+local player
 
-	local testframe3 = CreateFrame("ScrollingMessageFrame", nil, UIParent)
-	testframe3:SetAllPoints(testframe1)
-	testframe3:SetMaxLines(250)
-	testframe3:SetFontObject(ChatFontSmall)
-	testframe3:SetJustifyH("RIGHT")
-	testframe3:SetFading(false)
+--~ local triangle = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_4.blp:0|t"
+--~ local cross = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_7.blp:0|t"
+local skull = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8.blp:0|t"
 
-	local bg = testframe1:CreateTexture(nil,"BACKGROUND")
-	bg:SetTexture(0,0,0,0.7)
-	bg:SetPoint("TOPLEFT",testframe1,"TOPLEFT",-2,0)
-	bg:SetPoint("BOTTOMRIGHT",testframe1,"BOTTOMRIGHT",2,-20)
+local red = "|cFFFF0000"
+local green = "|cFF00FF00"
+local lightgreen = "|cFF99CC00"
+local orange = "|cFFCC9900"
+local colors = {}
+local misstypes = {MISS = "Miss", PARRY = "Parry", DODGE = "Dodge"}
 
-	local icon = "Interface\\LFGFrame\\LFGRole"
 
-	local tex1 = testframe1:CreateTexture(nil,"ARTWORK")
-	tex1:SetWidth(14)
-	tex1:SetHeight(14)
-	tex1:SetTexture(icon)
-	tex1:SetTexCoord(0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1)
-	tex1:SetPoint("TOPLEFT",testframe1,"BOTTOMLEFT",0,-5)
+local function output(frame, color, text, critical, pet, prefix)
+	local t = (color or "").. (pet and "[" or "").. (critical and "*" or "").. (frame ~= 1 and prefix or "").. text.. (critical and "*" or "").. (frame == 1 and prefix or "").. (pet and "]" or "")
+	for i,f in pairs(frames) do f:AddMessage(i == frame and t or " ") end
+end
 
-	local tex2 = testframe2:CreateTexture(nil,"ARTWORK")
-	tex2:SetWidth(14)
-	tex2:SetHeight(14)
-	tex2:SetTexture(icon)
-	tex2:SetTexCoord(0.75, 0, 0.75, 1, 1, 0, 1, 1)
-	tex2:SetPoint("TOP",testframe1,"BOTTOM",0,-5)
 
-	local tex3 = testframe3:CreateTexture(nil,"ARTWORK")
-	tex3:SetWidth(14)
-	tex3:SetHeight(14)
-	tex3:SetTexture(icon)
-	tex3:SetTexCoord(0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1)
-	tex3:SetPoint("TOPRIGHT",testframe1,"BOTTOMRIGHT",0,-5)
+mcl:RegisterEvent("PLAYER_LOGIN")
+function mcl:PLAYER_LOGIN()
+	player = UnitGUID("player")
+	for i,v in pairs(COMBATLOG_DEFAULT_COLORS.schoolColoring) do colors[i] = string.format("|cff%02x%02x%02x", v.r*255, v.g*255, v.b*255) end
+	self:UnregisterEvent("PLAYER_LOGIN")
+	self.PLAYER_LOGIN = nil
+end
 
-	local red = "|cFFFF0000"
-	local green = "|cFF00FF00"
-	local lightgreen = "|cFF99CC00"
-	local triangle = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_4.blp:0|t"
-	local cross = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_7.blp:0|t"
-	local skull = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8.blp:0|t"
+mcl:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+function mcl:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, minievent, guidsource, source, sourceflags, guidtarget, target, targetflags, ...)
+	local pet = UnitGUID("pet")
+	if not (guidsource == player or guidtarget == player or guidsource == pet or guidtarget == pet) then return end
 
-	local function Mgetcolor(value)
-		if COMBATLOG_DEFAULT_COLORS.schoolColoring[value] then
-			local r = COMBATLOG_DEFAULT_COLORS.schoolColoring[value].r
-			local g = COMBATLOG_DEFAULT_COLORS.schoolColoring[value].g
-			local b = COMBATLOG_DEFAULT_COLORS.schoolColoring[value].b
-			local string = string.format("|cff%02x%02x%02x", r*255, g*255, b*255)
-			return string
-		end
+--~ 	print(minievent, ...)
+
+	local text, color, crit, oframe, prefix, note, noteprefix
+	local spellid, spellname, spellschool, damage, overkill, damageschool, resisted, blocked, absorbed, wascrit, wasglance, wascrush, healed, overheal, misstype
+	local ispet = guidsource == pet or guidtarget == pet
+	oframe = (guidsource == player or guidsource == pet) and 3 or 1
+
+	if minievent == "SWING_DAMAGE" then
+		damage, overkill, damageschool, resisted, blocked, absorbed, wascrit, wasglance, wascrush = ...
+		text, crit, color = damage, wascrit, colors[damageschool]
+
+	elseif minievent == "SWING_MISSED" then
+		misstype, damage = ...
+		text, color, prefix = damage or misstypes[misstype] or misstype, orange, damage and "b"
+
+	elseif minievent == "SPELL_DAMAGE" or minievent == "SPELL_PERIODIC_DAMAGE" then
+		spellid, spellname, spellschool, damage, overkill, damageschool, resisted, blocked, absorbed, wascrit, wasglance, wascrush = ...
+		text, crit, color = damage, wascrit, colors[spellschool]
+
+	elseif minievent == "ENVIRONMENTAL_DAMAGE" then
+		envtype, damage, overkill, damageschool, resisted, blocked, absorbed, wascrit, wasglance, wascrush = ...
+		text, crit, color = damage, wascrit, colors[damageschool]
+
+	elseif minievent == "SPELL_HEAL" or minievent == "SPELL_PERIODIC_HEAL" then
+		spellid, spellname, spellschool, healed, overheal, wascrit = ...
+		if overheal < healed then text, crit, prefix = healed-overheal, wascrit, guidsource == player and guidtarget ~= player and "\226\134\145" end
+		if overheal > 0 then note = overheal end
+		color = minievent == "SPELL_PERIODIC_HEAL" and lightgreen or green
+		oframe = 2
+
+	elseif minievent == "UNIT_DIED" then
+		text, color, oframe = skull..skull..skull, red, 2
+
 	end
 
-	local function Mprint(chat1,chat2,chat3,color,text,critical)
-		if critical then text = "*"..text.."*" end
-		if color then text = color..text end
-		chat1:AddMessage(text.."|r")
-		chat2:AddMessage(" ")
-		chat3:AddMessage(" ")
-	end
+	if blocked   then prefix = "b" end
+	if resisted  then prefix = "r" end
+	if wasglance then prefix = "g" end
+	if wascrush  then prefix = "c" end
+	if absorbed  then prefix = "a" end
 
-	local amount,prefix,color,chat
+	if text then output(oframe, color, text, crit, ispet, prefix) end
+	if note then output(oframe, orange, note, crit, ispet, noteprefix) end
+end
 
-	local f = CreateFrame("Frame")
-	f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	f:RegisterEvent("PLAYER_REGEN_DISABLED")
-	f:RegisterEvent("PLAYER_REGEN_ENABLED")
-	f:SetScript("OnEvent", function(self,event,...)
-		if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-			local player = UnitGUID("player")
-			local pet = UnitGUID("pet")
-			local _,minievent,guidsource,source,_,guidtarget,target,_,_,_,color = ...
 
-			-- Player
-			if minievent == "SWING_DAMAGE" and guidsource == player then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(9,...),select(15,...))
-			elseif minievent == "SWING_DAMAGE" and guidtarget == player then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(9,...),select(15,...))
-			elseif minievent == "SPELL_DAMAGE" and guidsource == player then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_DAMAGE" and guidtarget == player then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == player then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == player then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(12,...),select(18,...))
-			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == player then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),select(10,...),nil)
-			elseif minievent == "SPELL_HEAL" and guidtarget == player then
-				if select(13,...) < select(12,...) then
-					Mprint(testframe2,testframe1,testframe3,green,select(12,...),select(14,...))
-				end
-			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == player then
-				if select(13,...) < select(12,...) then
-					Mprint(testframe2,testframe1,testframe3,lightgreen,select(12,...),select(14,...))
-				end
-			elseif minievent == "UNIT_DIED" and guidtarget == player then
-				Mprint(testframe2,testframe1,testframe3,red,skull..skull..skull)
-				
-			-- Pet
-			elseif minievent == "SWING_DAMAGE" and guidsource == pet then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(9,...).."]",select(15,...))
-			elseif minievent == "SWING_DAMAGE" and guidtarget == pet then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(9,...).."]",select(15,...))
-			elseif minievent == "SPELL_DAMAGE" and guidsource == pet then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_DAMAGE" and guidtarget == pet then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidsource == pet then
-				Mprint(testframe1,testframe2,testframe3,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "SPELL_PERIODIC_DAMAGE" and guidtarget == pet then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(12,...).."]",select(18,...))
-			elseif minievent == "ENVIRONMENTAL_DAMAGE" and guidtarget == pet then
-				Mprint(testframe3,testframe2,testframe1,Mgetcolor(color),"["..select(10,...).."]",nil)
-			elseif minievent == "SPELL_HEAL" and guidtarget == pet then
-				if select(13,...) < select(12,...) then
-					Mprint(testframe2,testframe1,testframe3,green,"["..select(12,...).."]",select(14,...))
-				end
-			elseif minievent == "SPELL_PERIODIC_HEAL" and guidtarget == pet then
-				if select(13,...) < select(12,...) then
-					Mprint(testframe2,testframe1,testframe3,lightgreen,"["..select(12,...).."]",select(14,...))
-				end
-			elseif minievent == "UNIT_DIED" and guidtarget == pet then
-				Mprint(testframe2,testframe1,testframe3,red,"["..skull..skull..skull.."]")
-			else return end
+mcl:RegisterEvent("PLAYER_REGEN_ENABLED")
+function mcl:PLAYER_REGEN_ENABLED()
+	if not UnitIsDead("player") then output(2, green, "-combat-") end
+end
 
-		elseif event == "PLAYER_REGEN_ENABLED" and not UnitIsDead("player") then
-			Mprint(testframe2,testframe1,testframe3,green,"+++")
-		elseif event == "PLAYER_REGEN_DISABLED" then
-			Mprint(testframe2,testframe1,testframe3,red,"---")
-		end
-	end)
-end)
+
+mcl:RegisterEvent("PLAYER_REGEN_DISABLED")
+function mcl:PLAYER_REGEN_DISABLED()
+	output(2, red, "+combat+")
+end
