@@ -14,7 +14,7 @@ local green = "|cFF00FF00"
 local lightgreen = "|cFF99CC00"
 local orange = "|cFFCC9900"
 local colors = {}
-local misstypes = {MISS = "Miss", PARRY = "Parry", DODGE = "Dodge"}
+local misstypes = {MISS = "Miss", PARRY = "Parry", DODGE = "Dodge", IMMUNE = "Immune"}
 
 
 local function output(frame, color, text, critical, pet, prefix)
@@ -50,6 +50,10 @@ function mcl:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, minievent, guidsource
 	elseif minievent == "SWING_MISSED" then
 		misstype, damage = ...
 		text, color, prefix = damage or misstypes[misstype] or misstype, orange, damage and "b"
+
+	elseif minievent == "SPELL_MISSED" then
+		spellid, spellname, spellschool, misstype, damage = ...
+		text, color, prefix = damage or misstypes[misstype] or misstype, colors[spellschool], damage and "b"
 
 	elseif minievent == "SPELL_DAMAGE" or minievent == "SPELL_PERIODIC_DAMAGE" then
 		spellid, spellname, spellschool, damage, overkill, damageschool, resisted, blocked, absorbed, wascrit, wasglance, wascrush = ...
