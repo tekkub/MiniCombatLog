@@ -32,7 +32,8 @@ function mcl:PLAYER_LOGIN()
 end
 
 mcl:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-function mcl:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, minievent, hidecaster, guidsource, source, sourceflags, sourceraidflags, guidtarget, target, targetflags, destraidflags, ...)
+function mcl:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, minievent, hidecaster, guidsource, source, sourceflags, guidtarget, target, targetflags, ...)
+-- function mcl:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, minievent, hidecaster, guidsource, source, sourceflags, sourceraidflags, guidtarget, target, targetflags, destraidflags, ...)
 	local pet = UnitGUID("pet")
 	if not (guidsource == player or guidtarget == player or guidsource == pet or guidtarget == pet) then return end
 
